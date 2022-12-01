@@ -7,8 +7,10 @@ import (
 	"strconv"
 )
 
+// Flag for debugging
 const debug = true
 
+// Helper for debugging
 func log(message string) {
 	if !debug {
 		return
@@ -29,43 +31,45 @@ func main() {
 		panic(err)
 	}
 
+	// Close the file at the end of the function
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
+	// Variables we're interested in
 	maxCalories := 0
 	maxCaloriesElfId := 0
 
 	currentElfId := 1
 	currentElfCalories := 0
 
+	// Won't work if file has only one line
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		log(fmt.Sprintf("Read line [%s]", line))
 
-		if line == "" || line == "\n" {
-			// Process max id
-			if currentElfCalories > maxCalories {
-				log(fmt.Sprintf("Updating max calories, new max: %d (elf id: %d)", currentElfCalories, currentElfId))
+		if line != "" && line != "\n" {
+			parsedCalories, err := strconv.Atoi(line)
 
-				maxCalories = currentElfCalories
-				maxCaloriesElfId = currentElfId
+			if err != nil {
+				panic(err)
 			}
 
-			currentElfId++
-			currentElfCalories = 0
+			currentElfCalories += parsedCalories
 
 			continue
 		}
 
-		parsedCalories, err := strconv.Atoi(line)
+		if currentElfCalories > maxCalories {
+			log(fmt.Sprintf("Updating max calories, new max: %d (elf id: %d)", currentElfCalories, currentElfId))
 
-		if err != nil {
-			panic(err)
+			maxCalories = currentElfCalories
+			maxCaloriesElfId = currentElfId
 		}
 
-		currentElfCalories += parsedCalories
+		currentElfId++
+		currentElfCalories = 0
 	}
 
 	fmt.Println(fmt.Sprintf("Elf with most calories is %d with %d calories", maxCaloriesElfId, maxCalories))
