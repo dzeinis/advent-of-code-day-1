@@ -8,7 +8,7 @@ import (
 )
 
 // Flag for debugging
-const debug = true
+const debug = false
 
 // Helper for debugging
 func log(message string) {
