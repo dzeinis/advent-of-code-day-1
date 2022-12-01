@@ -3,12 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 // Flag for debugging
 const debug = false
+
+// How many elves from the top should we include
+const numberOfElvesToCount = 3
 
 // Helper for debugging
 func log(message string) {
@@ -36,14 +41,10 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 
-	// Variables we're interested in
-	maxCalories := 0
-	maxCaloriesElfId := 0
+	var elfCalories []int
 
-	currentElfId := 1
 	currentElfCalories := 0
 
-	// Won't work if file has only one line
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -61,16 +62,35 @@ func main() {
 			continue
 		}
 
-		if currentElfCalories > maxCalories {
-			log(fmt.Sprintf("Updating max calories, new max: %d (elf id: %d)", currentElfCalories, currentElfId))
-
-			maxCalories = currentElfCalories
-			maxCaloriesElfId = currentElfId
-		}
-
-		currentElfId++
+		elfCalories = append(elfCalories, currentElfCalories)
 		currentElfCalories = 0
 	}
 
-	fmt.Println(fmt.Sprintf("Elf with most calories is %d with %d calories", maxCaloriesElfId, maxCalories))
+	// Add the last elf, as the loop will exit before processing the last one if its non-zero
+	if currentElfCalories > 0 {
+		elfCalories = append(elfCalories, currentElfCalories)
+	}
+
+	// Sort the elves and their calories
+	sort.Slice(elfCalories, func(i, j int) bool {
+		return elfCalories[i] > elfCalories[j]
+	})
+
+	log(fmt.Sprintf("Sorted list: %v", elfCalories))
+
+	if len(elfCalories) == 0 {
+		fmt.Printf("No elves provided")
+
+		return
+	}
+
+	caloriesForTopElves := 0
+
+	numberOfElves := int(math.Min(numberOfElvesToCount, float64(len(elfCalories))))
+
+	for j := 0; j < numberOfElves; j++ {
+		caloriesForTopElves += elfCalories[j]
+	}
+
+	fmt.Printf("Top %d elves have %d calories", numberOfElves, caloriesForTopElves)
 }
