@@ -66,7 +66,8 @@ func main() {
 		currentElfCalories = 0
 	}
 
-	// Add the last elf, as the loop will exit before processing the last one if its non-zero
+	// Add the last elf, as the loop will exit before processing the last one
+	// Also check if it is non-zero
 	if currentElfCalories > 0 {
 		elfCalories = append(elfCalories, currentElfCalories)
 	}
